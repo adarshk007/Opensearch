@@ -1,0 +1,7 @@
+server:
+  port: 8080
+
+opensearch:
+  url: "https://opensearch:9200"
+  username: "admin"
+  password: "your-pass"

@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      # - plugins.security.disabled=true
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_INITIAL_ADMIN_USERNAME=admin
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=your-pass
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - opensearch-net
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    container_name: opensearch-dashboards
+    environment:
+      - OPENSEARCH_HOSTS=https://opensearch:9200
+      - OPENSEARCH_INITIAL_ADMIN_USERNAME=admin
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=your-pass
+      # - OPENSEARCH_SSL_VERIFICATIONMODE=none
+    ports:
+      - "5601:5601"
+    depends_on:
+      - opensearch
+    networks:
+      - opensearch-net
+
+  api:
+    build: .
+    container_name: tutorial
+    depends_on:
+      - opensearch
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app        # <── mounts current directory to /app
+    environment:
+      - ENV=dev
+    networks:
+      - opensearch-net
+
+networks:
+  opensearch-net:
+    driver: bridge
+    external: false
